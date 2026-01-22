@@ -1,3 +1,6 @@
+Here is the updated `index.html` incorporating the new navigation bar, history view, and manual start features:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,6 +91,34 @@
             font-size: 10px;
             opacity: 0.9;
             margin-top: 2px;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .nav-btn.active {
+            background: white;
+            color: var(--primary);
         }
         
         .container {
@@ -253,6 +284,13 @@
             color: var(--text-muted);
             cursor: not-allowed;
         }
+
+        .btn-manual {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            flex: 0 0 50px;
+        }
         
         .streak-badge {
             position: absolute;
@@ -332,7 +370,7 @@
             margin-top: 20px;
         }
         
-        input[type="number"] {
+        input[type="number"], input[type="time"] {
             width: 100%;
             padding: 12px;
             background: var(--bg);
@@ -409,33 +447,6 @@
         .export-btn:active {
             transform: scale(0.9);
         }
-        
-        .stats-view {
-            display: none;
-        }
-        
-        .stats-view.active {
-            display: block;
-        }
-        
-        .stat-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-        }
-        
-        .stat-card-title {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-        
-        .stat-card-value {
-            font-size: 24px;
-            font-weight: 700;
-        }
     </style>
 </head>
 <body>
@@ -462,12 +473,26 @@
                 <div class="stat-mini-label">Complete</div>
             </div>
         </div>
+        <div class="nav-bar">
+            <button class="nav-btn active" onclick="tracker.showView('track')" id="navTrack">🎯 Track</button>
+            <button class="nav-btn" onclick="tracker.showView('history')" id="navHistory">📜 History</button>
+            <button class="nav-btn" onclick="tracker.openSettings()" style="flex: 0 0 50px;">⚙️</button>
+        </div>
     </div>
 
-    <div class="container" id="container">
-        <div class="empty-state">
-            <div class="empty-state-icon">⏰</div>
-            <div>Loading activities...</div>
+    <div id="trackView">
+        <div class="container" id="container">
+            <div class="empty-state">
+                <div class="empty-state-icon">⏰</div>
+                <div>Loading activities...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyView" style="display: none;">
+        <div class="container">
+            <div class="section-title">Today's Logs</div>
+            <div id="historyList"></div>
         </div>
     </div>
 
@@ -494,6 +519,29 @@
         </div>
     </div>
 
+    <div class="modal" id="manualStartModal">
+        <div class="modal-content">
+            <div class="modal-title">Manual Start Time</div>
+            <p style="color: var(--text-muted); margin: 8px 0;">When did you actually start?</p>
+            <input type="time" id="manualStartTime">
+            <div class="modal-buttons">
+                <button class="btn btn-disabled" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-start" onclick="tracker.confirmManualStart()">Start Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-title">Activity Settings</div>
+            <p style="color: var(--text-muted); margin: 8px 0; font-size: 14px;">Adjust your scheduled activity times.</p>
+            <div id="settingsList" style="margin-top: 15px;"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-stop" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <button class="export-btn" onclick="exportWeek()" title="Export Weekly Data">📥</button>
 
     <script src="app.js"></script>
@@ -506,3 +554,5 @@
     </script>
 </body>
 </html>
+
+```
