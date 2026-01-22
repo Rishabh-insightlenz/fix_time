@@ -8,7 +8,7 @@ class TimeBudgetTracker {
         this.currentDayType = null;
         this.todayLog = {};
         this.timers = {};
-        this.timer Interval = null;
+        this.timerInterval = null;
         this.currentCardIndex = 0;
         this.pendingStopId = null;
         this.pendingHistoryId = null;
@@ -1016,3 +1016,4 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js');
     });
 }
+
