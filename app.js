@@ -118,11 +118,11 @@ class TimeBudgetTracker {
             work: { name: 'Work', icon: '💼', planned: 480, cal: 1.5, startTime: '09:00', endTime: '17:00', enabled: true },
             commute_pm: { name: 'Commute PM', icon: '🚙', planned: 80, cal: 1.2, startTime: '17:00', endTime: '18:20', enabled: true },
             gym: { name: 'Gym', icon: '💪', planned: 60, cal: 8, startTime: '18:30', endTime: '19:30', enabled: true },
-            walk: { name: 'Walk', icon: '🚶', planned: 30, cal: 4, startTime: '20:00', endTime: '20:30', enabled: true },
-            meals: { name: 'Meals', icon: '🍽️', planned: 60, cal: 1.0, startTime: '19:00', endTime: '20:00', enabled: true },
-            project: { name: 'Project Work', icon: '📊', planned: 120, cal: 1.8, startTime: '20:30', endTime: '22:30', enabled: true },
-            winddown: { name: 'Wind Down', icon: '🌙', planned: 30, cal: 1.0, startTime: '22:30', endTime: '23:00', enabled: true },
-            leisure: { name: 'Leisure', icon: '🎮', planned: 60, cal: 1.2, startTime: '21:00', endTime: '22:00', enabled: true }
+            meals: { name: 'Meals', icon: '🍽️', planned: 60, cal: 1.0, startTime: '20:00', endTime: '20:30', enabled: true },
+            walk: { name: 'Walk', icon: '🚶', planned: 30, cal: 4, startTime: '20:30', endTime: '21:00', enabled: true },           
+            project: { name: 'Project Work', icon: '📊', planned: 120, cal: 1.8, startTime: '21:00', endTime: '22:00', enabled: true },           
+            leisure: { name: 'Leisure', icon: '🎮', planned: 60, cal: 1.2, startTime: '22:00', endTime: '22:30', enabled: true },
+            winddown: { name: 'Wind Down', icon: '🌙', planned: 30, cal: 1.0, startTime: '22:30', endTime: '23:00', enabled: true }
         };
 
         // Filter based on day type and add IDs
