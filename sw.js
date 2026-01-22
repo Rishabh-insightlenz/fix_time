@@ -1,5 +1,5 @@
 // Service Worker for Time Budget Tracker
-const CACHE_NAME = 'time-budget-v1';
+const CACHE_NAME = 'time-budget-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -39,3 +39,4 @@ function sendReminders() {
     badge: '/icon-192.png'
   });
 }
+
