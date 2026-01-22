@@ -25,18 +25,43 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Background sync for notifications
+// Push event for notifications
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : { title: 'Time Budget', body: 'Check your activities!' };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: self.location.origin
+      }
+    })
+  );
+});
+
+// Notification click event
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url)
+  );
+});
+
+// Background sync for reminders
 self.addEventListener('sync', (event) => {
   if (event.tag === 'activity-reminder') {
-    event.waitUntil(sendReminders());
+    event.waitUntil(sendLocalReminder());
   }
 });
 
-function sendReminders() {
+function sendLocalReminder() {
   return self.registration.showNotification('Time Budget Reminder', {
-    body: 'Check your activities!',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png'
+    body: 'Time to check your schedule!',
+    icon: './icon-192.png',
+    badge: './icon-192.png'
   });
 }
 

@@ -106,6 +106,7 @@ class TimeBudgetTracker {
         const saved = localStorage.getItem('customActivities');
         if (saved) {
             this.activities = JSON.parse(saved);
+            this.sortActivitiesByCurrentTime();
             return;
         }
 
@@ -132,6 +133,30 @@ class TimeBudgetTracker {
         })).filter(a => a.enabled);
 
         this.saveActivities();
+    }
+
+    sortActivitiesByCurrentTime() {
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        this.activities.sort((a, b) => {
+            const [aH, aM] = a.startTime.split(':').map(Number);
+            const [bH, bM] = b.startTime.split(':').map(Number);
+            const aStart = aH * 60 + aM;
+            const bStart = bH * 60 + bM;
+
+            const [aEH, aEM] = a.endTime.split(':').map(Number);
+            const [bEH, bEM] = b.endTime.split(':').map(Number);
+            const aEnd = aEH * 60 + aEM;
+            const bEnd = bEH * 60 + bEM;
+
+            const aIsCurrent = currentTime >= aStart && currentTime <= aEnd;
+            const bIsCurrent = currentTime >= bStart && currentTime <= bEnd;
+
+            if (aIsCurrent && !bIsCurrent) return -1;
+            if (!aIsCurrent && bIsCurrent) return 1;
+            return aStart - bStart;
+        });
     }
 
     saveActivities() {
@@ -403,64 +428,69 @@ class TimeBudgetTracker {
         let currentX = 0;
         let isDragging = false;
 
-        container.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
+        const handleStart = (x) => {
+            startX = x;
+            currentX = x;
             isDragging = true;
-        });
+            container.style.transition = 'none';
+        };
 
-        container.addEventListener('touchmove', (e) => {
+        const handleMove = (x) => {
             if (!isDragging) return;
-            currentX = e.touches[0].clientX;
+            currentX = x;
             const diff = currentX - startX;
             container.style.transform = `translateX(${diff}px)`;
-        });
+        };
 
-        container.addEventListener('touchend', (e) => {
+        const handleEnd = () => {
             if (!isDragging) return;
             isDragging = false;
             
             const diff = currentX - startX;
             const threshold = 100;
 
-            if (diff > threshold && this.currentCardIndex > 0) {
-                this.currentCardIndex--;
-            } else if (diff < -threshold && this.currentCardIndex < this.activities.length - 1) {
-                this.currentCardIndex++;
-            }
-
-            container.style.transform = '';
-            this.renderCards();
-        });
-
-        // Mouse events for desktop
-        container.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            isDragging = true;
-        });
-
-        container.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            currentX = e.clientX;
-            const diff = currentX - startX;
-            container.style.transform = `translateX(${diff}px)`;
-        });
-
-        container.addEventListener('mouseup', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
+            container.style.transition = 'transform 0.3s ease';
             
-            const diff = currentX - startX;
-            const threshold = 100;
-
-            if (diff > threshold && this.currentCardIndex > 0) {
-                this.currentCardIndex--;
-            } else if (diff < -threshold && this.currentCardIndex < this.activities.length - 1) {
-                this.currentCardIndex++;
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    // Swipe right -> Previous card
+                    container.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        this.currentCardIndex = (this.currentCardIndex - 1 + this.activities.length) % this.activities.length;
+                        container.style.transition = 'none';
+                        container.style.transform = 'translateX(-100%)';
+                        this.renderCards();
+                        setTimeout(() => {
+                            container.style.transition = 'transform 0.3s ease';
+                            container.style.transform = 'translateX(0)';
+                        }, 50);
+                    }, 300);
+                } else {
+                    // Swipe left -> Next card
+                    container.style.transform = 'translateX(-100%)';
+                    setTimeout(() => {
+                        this.currentCardIndex = (this.currentCardIndex + 1) % this.activities.length;
+                        container.style.transition = 'none';
+                        container.style.transform = 'translateX(100%)';
+                        this.renderCards();
+                        setTimeout(() => {
+                            container.style.transition = 'transform 0.3s ease';
+                            container.style.transform = 'translateX(0)';
+                        }, 50);
+                    }, 300);
+                }
+            } else {
+                container.style.transform = 'translateX(0)';
             }
+        };
 
-            container.style.transform = '';
-            this.renderCards();
-        });
+        container.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX));
+        container.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX));
+        container.addEventListener('touchend', handleEnd);
+
+        container.addEventListener('mousedown', (e) => handleStart(e.clientX));
+        window.addEventListener('mousemove', (e) => handleMove(e.clientX));
+        window.addEventListener('mouseup', handleEnd);
     }
 
     startTimer(activityId) {
@@ -523,13 +553,62 @@ class TimeBudgetTracker {
         Object.keys(this.timers).forEach(id => {
             this.timers[id].elapsed = Date.now() - this.timers[id].start;
         });
-        this.render();
+        // Only re-render if we are on the cards view to avoid flickering in settings
+        if (this.currentView === 'cards') {
+            this.renderCards();
+        }
         this.updateQuickWidget();
     }
 
     startTimerUpdates() {
-        if (!this.timerInterval && Object.keys(this.timers).length > 0) {
-            this.timerInterval = setInterval(() => this.updateTimers(), 1000);
+        if (!this.timerInterval) {
+            this.timerInterval = setInterval(() => {
+                this.updateTimers();
+                this.checkScheduledNotifications();
+            }, 1000);
+        }
+    }
+
+    checkScheduledNotifications() {
+        if (!this.notificationsEnabled) return;
+
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        const currentSeconds = now.getSeconds();
+
+        // Only check at the start of each minute
+        if (currentSeconds !== 0) return;
+
+        this.activities.forEach(activity => {
+            if (!activity.enabled) return;
+
+            const [h, m] = activity.startTime.split(':').map(Number);
+            const startTime = h * 60 + m;
+            const reminderTime = startTime - this.reminderMinutes;
+
+            if (currentTime === reminderTime) {
+                this.sendNotification(
+                    `Upcoming: ${activity.name}`,
+                    `Starts in ${this.reminderMinutes} minutes (${activity.startTime})`
+                );
+            }
+        });
+    }
+
+    sendNotification(title, body) {
+        if (!this.notificationsEnabled) return;
+
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(title, {
+                    body: body,
+                    icon: './icon-192.png',
+                    badge: './icon-192.png',
+                    vibrate: [100, 50, 100]
+                });
+            });
+        } else {
+            new Notification(title, { body });
         }
     }
 
@@ -658,6 +737,11 @@ class TimeBudgetTracker {
             return;
         }
 
+        // Ensure currentCardIndex is within bounds
+        if (this.currentCardIndex >= this.activities.length) {
+            this.currentCardIndex = 0;
+        }
+
         const activity = this.activities[this.currentCardIndex];
         const actual = this.todayLog[activity.id] || 0;
         const variance = this.getVariance(activity.id);
@@ -687,11 +771,11 @@ class TimeBudgetTracker {
 
                 <div class="progress-ring">
                     <svg width="200" height="200">
-                        <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" stroke-width="12"/>
-                        <circle cx="100" cy="100" r="90" fill="none" stroke="var(--primary)" stroke-width="12"
-                                stroke-dasharray="${progress * 5.65} 565" 
+                        <circle cx="75" cy="75" r="65" fill="none" stroke="var(--border)" stroke-width="10"/>
+                        <circle cx="75" cy="75" r="65" fill="none" stroke="var(--primary)" stroke-width="10"
+                                stroke-dasharray="${progress * 4.08} 408" 
                                 stroke-dashoffset="0" 
-                                transform="rotate(-90 100 100)"
+                                transform="rotate(-90 75 75)"
                                 style="transition: stroke-dasharray 0.3s;"/>
                     </svg>
                     <div class="progress-text">${Math.round(progress)}%</div>
@@ -710,20 +794,31 @@ class TimeBudgetTracker {
 
                 <div class="card-actions-large">
                     ${isRunning ? `
-                        <button class="action-btn danger" onclick="tracker.stopTimer('${activity.id}')">
+                        <button class="action-btn danger" id="stopBtn-${activity.id}">
                             ⏹️ Stop Timer
                         </button>
                     ` : `
-                        <button class="action-btn primary" onclick="tracker.startTimer('${activity.id}')">
+                        <button class="action-btn primary" id="startBtn-${activity.id}">
                             ▶️ Start Now
                         </button>
-                        <button class="action-btn secondary" onclick="tracker.openManualStart('${activity.id}')">
+                        <button class="action-btn secondary" id="manualBtn-${activity.id}">
                             🕐 Manual Start
                         </button>
                     `}
                 </div>
             </div>
         `;
+
+        // Add event listeners manually to ensure they work
+        if (isRunning) {
+            const btn = document.getElementById(`stopBtn-${activity.id}`);
+            if (btn) btn.onclick = () => this.stopTimer(activity.id);
+        } else {
+            const startBtn = document.getElementById(`startBtn-${activity.id}`);
+            if (startBtn) startBtn.onclick = () => this.startTimer(activity.id);
+            const manualBtn = document.getElementById(`manualBtn-${activity.id}`);
+            if (manualBtn) manualBtn.onclick = () => this.openManualStart(activity.id);
+        }
 
         // Render dots
         dotsContainer.innerHTML = this.activities.map((_, i) => 
@@ -795,11 +890,17 @@ class TimeBudgetTracker {
     renderSettings() {
         const container = document.getElementById('activitySettings');
         
-        container.innerHTML = this.activities.map(activity => `
+        container.innerHTML = this.activities.map((activity, index) => `
             <div class="setting-card">
                 <div class="setting-header">
+                    <div class="reorder-btns">
+                        <button onclick="tracker.reorderActivity(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+                        <button onclick="tracker.reorderActivity(${index}, 1)" ${index === this.activities.length - 1 ? 'disabled' : ''}>↓</button>
+                    </div>
                     <span class="setting-icon">${activity.icon}</span>
                     <span class="setting-name">${activity.name}</span>
+                    <div style="flex: 1"></div>
+                    <button class="action-btn danger small" onclick="tracker.deleteActivity('${activity.id}')">🗑️</button>
                     <label class="toggle-switch">
                         <input type="checkbox" ${activity.enabled ? 'checked' : ''} 
                                onchange="tracker.toggleActivity('${activity.id}', this.checked)">
@@ -830,6 +931,49 @@ class TimeBudgetTracker {
                 </div>
             </div>
         `).join('');
+    }
+
+    reorderActivity(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= this.activities.length) return;
+        
+        const temp = this.activities[index];
+        this.activities[index] = this.activities[newIndex];
+        this.activities[newIndex] = temp;
+        
+        this.saveActivities();
+        this.renderSettings();
+    }
+
+    openAddActivityModal() {
+        document.getElementById('addActivityModal').classList.add('show');
+    }
+
+    addActivity() {
+        const name = document.getElementById('newActivityName').value;
+        const icon = document.getElementById('newActivityIcon').value || '📝';
+        const planned = parseInt(document.getElementById('newActivityPlanned').value) || 60;
+        const startTime = document.getElementById('newActivityStart').value || '09:00';
+        const endTime = document.getElementById('newActivityEnd').value || '10:00';
+        const cal = parseFloat(document.getElementById('newActivityCal').value) || 1.5;
+
+        if (!name) return;
+
+        const id = name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+        this.activities.push({
+            id, name, icon, planned, startTime, endTime, cal, enabled: true
+        });
+
+        this.saveActivities();
+        this.closeModal();
+        this.renderSettings();
+    }
+
+    deleteActivity(id) {
+        if (!confirm('Delete this activity?')) return;
+        this.activities = this.activities.filter(a => a.id !== id);
+        this.saveActivities();
+        this.renderSettings();
     }
 
     toggleActivity(id, enabled) {

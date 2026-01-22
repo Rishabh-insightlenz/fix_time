@@ -31,25 +31,7 @@
             <div class="day-badge" id="dayBadge">Loading...</div>
         </div>
         
-        <!-- Stats Bar -->
-        <div class="stats-bar">
-            <div class="stat-mini">
-                <div class="stat-mini-value" id="totalVariance">0m</div>
-                <div class="stat-mini-label">Variance</div>
-            </div>
-            <div class="stat-mini">
-                <div class="stat-mini-value" id="totalCalories">0</div>
-                <div class="stat-mini-label">🔥 Cal</div>
-            </div>
-            <div class="stat-mini">
-                <div class="stat-mini-value" id="streakCount">0</div>
-                <div class="stat-mini-label">🔥 Streak</div>
-            </div>
-            <div class="stat-mini">
-                <div class="stat-mini-value" id="completionRate">0%</div>
-                <div class="stat-mini-label">Done</div>
-            </div>
-        </div>
+
 
         <!-- Navigation Tabs -->
         <div class="nav-bar">
@@ -68,8 +50,7 @@
         </div>
     </div>
 
-    <!-- Deviation Alerts -->
-    <div class="alerts-container" id="alertsContainer"></div>
+
 
     <!-- Swipeable Cards View -->
     <div id="cardsView" class="view-container">
@@ -104,6 +85,30 @@
     <div id="insightsView" class="view-container" style="display: none;">
         <div class="container">
             <h2 class="view-title">💡 Smart Insights</h2>
+            
+            <!-- Stats Bar (Moved from Header) -->
+            <div class="stats-bar">
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="totalVariance">0m</div>
+                    <div class="stat-mini-label">Variance</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="totalCalories">0</div>
+                    <div class="stat-mini-label">🔥 Cal</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="streakCount">0</div>
+                    <div class="stat-mini-label">🔥 Streak</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="completionRate">0%</div>
+                    <div class="stat-mini-label">Done</div>
+                </div>
+            </div>
+
+            <!-- Deviation Alerts (Moved from Home) -->
+            <div class="alerts-container" id="alertsContainer"></div>
+
             <div id="insightsList" class="insights-list"></div>
         </div>
     </div>
@@ -126,7 +131,10 @@
 
             <!-- Activity Settings -->
             <div class="settings-section">
-                <h3 class="section-title">🎯 Activity Settings</h3>
+                <div class="section-header">
+                    <h3 class="section-title">🎯 Activity Settings</h3>
+                    <button class="action-btn primary small" onclick="tracker.openAddActivityModal()">+ Add</button>
+                </div>
                 <div id="activitySettings" class="activity-settings-list"></div>
             </div>
 
@@ -197,6 +205,24 @@
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="tracker.confirmTemplate()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addActivityModal">
+        <div class="modal-content">
+            <div class="modal-title">Add New Activity</div>
+            <div class="modal-form">
+                <input type="text" id="newActivityName" placeholder="Activity Name" class="modal-input">
+                <input type="text" id="newActivityIcon" placeholder="Icon (e.g. 🏃)" class="modal-input">
+                <input type="number" id="newActivityPlanned" placeholder="Planned Minutes" class="modal-input">
+                <input type="time" id="newActivityStart" class="modal-input">
+                <input type="time" id="newActivityEnd" class="modal-input">
+                <input type="number" step="0.1" id="newActivityCal" placeholder="Calories per Minute" class="modal-input">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tracker.addActivity()">Add Activity</button>
             </div>
         </div>
     </div>

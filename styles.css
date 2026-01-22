@@ -63,11 +63,12 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin-top: 15px;
+    margin-bottom: 20px;
 }
 
 .stat-mini {
-    background: rgba(255,255,255,0.1);
+    background: var(--card);
+    border: 1px solid var(--border);
     padding: 10px;
     border-radius: 8px;
     text-align: center;
@@ -262,12 +263,16 @@ body {
 .activity-card {
     background: var(--card);
     border-radius: 24px;
-    padding: 30px;
-    max-width: 450px;
+    padding: 20px;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
     border: 2px solid var(--border);
     position: relative;
     box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .activity-card.running {
@@ -294,32 +299,32 @@ body {
 }
 
 .card-icon-large {
-    font-size: 64px;
+    font-size: 48px;
     text-align: center;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .card-name-large {
     text-align: center;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .card-time-range {
     text-align: center;
     color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 30px;
+    font-size: 12px;
+    margin-bottom: 15px;
 }
 
 .timer-display {
     text-align: center;
-    margin: 30px 0;
+    margin: 15px 0;
 }
 
 .timer-running, .timer-static {
-    font-size: 48px;
+    font-size: 36px;
     font-weight: 700;
     font-family: 'Courier New', monospace;
     background: var(--gradient);
@@ -329,16 +334,31 @@ body {
 }
 
 .timer-label {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-muted);
-    margin-top: 8px;
+    margin-top: 4px;
 }
 
 .progress-ring {
     position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 30px auto;
+    width: 150px;
+    height: 150px;
+    margin: 15px auto;
+}
+
+.progress-ring svg {
+    width: 150px;
+    height: 150px;
+}
+
+.progress-ring circle {
+    cx: 75;
+    cy: 75;
+    r: 65;
+}
+
+.progress-ring circle:nth-child(2) {
+    stroke-dasharray: calc(65 * 2 * 3.14159);
 }
 
 .progress-text {
@@ -346,20 +366,21 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 36px;
+    font-size: 24px;
     font-weight: 700;
 }
 
 .card-stats-large {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin: 30px 0;
+    gap: 10px;
+    margin: 15px 0;
+    width: 100%;
 }
 
 .stat-item {
     text-align: center;
-    padding: 15px;
+    padding: 10px;
     background: rgba(99, 102, 241, 0.1);
     border-radius: 12px;
 }
@@ -383,8 +404,9 @@ body {
 .card-actions-large {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 30px;
+    gap: 10px;
+    margin-top: 15px;
+    width: 100%;
 }
 
 .card-dots {
@@ -744,14 +766,58 @@ input:checked + .toggle-slider:before {
     width: 400px;
 }
 
-.modal-title {
-    font-size: 22px;
+.modal.section-title {
+    font-size: 18px;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
+    color: var(--primary);
 }
 
-.modal-text {
-    color: var(--text-muted);
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-header .section-title {
+    margin-bottom: 0;
+}
+
+.reorder-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 10px;
+}
+
+.reorder-btns button {
+    background: var(--border);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.reorder-btns button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.action-btn.small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}xt-muted);
     margin-bottom: 20px;
     font-size: 14px;
 }
