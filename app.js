@@ -784,3 +784,72 @@ function confirmStop() {
 function saveHistory() {
     if (tracker) tracker.saveHistory();
 }
+
+// Add these methods to the TimeBudgetTracker class in app.js
+
+showView(view) {
+    document.getElementById('trackView').style.display = view === 'track' ? 'block' : 'none';
+    document.getElementById('historyView').style.display = view === 'history' ? 'block' : 'none';
+    if (view === 'history') this.renderHistory();
+}
+
+async renderHistory() {
+    const today = new Date().toISOString().split('T')[0];
+    const logs = await this.getLogsForDate(today);
+    const historyList = document.getElementById('historyList');
+    
+    if (logs.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">No logs for today yet.</div>';
+        return;
+    }
+
+    historyList.innerHTML = logs.reverse().map(log => {
+        const activity = this.activities.find(a => a.id === log.activityId);
+        return `
+            <div class="card completed" style="padding: 12px; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${activity ? activity.icon : ''} <b>${activity ? activity.name : 'Unknown'}</b></span>
+                    <span style="color: var(--success);">${log.minutes} mins</span>
+                </div>
+                <div style="font-size: 10px; color: var(--text-muted); margin-top: 5px;">
+                    ${new Date(log.timestamp).toLocaleTimeString()} ${log.isHistory ? '(Manual Entry)' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+openManualStart(activityId) {
+    this.pendingManualId = activityId;
+    const now = new Date();
+    document.getElementById('manualStartTime').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    document.getElementById('manualStartModal').classList.add('show');
+}
+
+confirmManualStart() {
+    const timeVal = document.getElementById('manualStartTime').value;
+    if (!timeVal || !this.pendingManualId) return;
+
+    const [hours, minutes] = timeVal.split(':').map(Number);
+    const startTime = new Date();
+    startTime.setHours(hours, minutes, 0, 0);
+
+    this.timers[this.pendingManualId] = {
+        start: startTime.getTime(),
+        elapsed: Date.now() - startTime.getTime(),
+        activity: this.activities.find(a => a.id === this.pendingManualId)
+    };
+
+    this.closeModal();
+    this.render();
+}
+
+// Update the render() function's action buttons to include a manual start option
+// Replace the 'Start' button HTML in your render loop with:
+/*
+<div style="display: flex; gap: 5px; width: 100%;">
+    <button class="btn btn-start" onclick="tracker.startTimer('${activity.id}')" style="flex: 3;">▶️ Start</button>
+    <button class="btn btn-disabled" onclick="tracker.openManualStart('${activity.id}')" style="flex: 1;">🕒</button>
+</div>
+*/
+
