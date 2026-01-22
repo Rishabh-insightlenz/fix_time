@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,452 +6,32 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#6366f1">
-    <title>Time Budget Tracker</title>
+    <title>Time Budget Tracker v2</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding-bottom: env(safe-area-inset-bottom);
-            overflow-x: hidden;
-        }
-        
-        .header {
-            background: var(--gradient);
-            padding: 20px 20px 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-        }
-        
-        .day-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .stats-bar {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        
-        .stat-mini {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .stat-mini-value {
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-        
-        .stat-mini-label {
-            font-size: 10px;
-            opacity: 0.9;
-            margin-top: 2px;
-        }
-
-        .nav-bar {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .nav-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .nav-btn.active {
-            background: white;
-            color: var(--primary);
-        }
-        
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 15px;
-            padding-bottom: 100px;
-        }
-        
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 20px 0 12px;
-            padding: 0 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .card:active {
-            transform: scale(0.98);
-        }
-        
-        .card.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-        
-        .card.missed {
-            opacity: 0.6;
-            border-color: var(--danger);
-        }
-        
-        .card.completed {
-            border-color: var(--success);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-        
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .card-icon {
-            font-size: 32px;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(99, 102, 241, 0.2);
-            border-radius: 12px;
-        }
-        
-        .card-info {
-            flex: 1;
-        }
-        
-        .card-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .card-time {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        
-        .card-status {
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        
-        .status-upcoming { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
-        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-missed { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .status-completed { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        
-        .card-progress {
-            margin: 12px 0;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            transition: width 0.3s;
-            border-radius: 3px;
-        }
-        
-        .card-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-        
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        .btn:active {
-            transform: scale(0.95);
-        }
-        
-        .btn-start {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-stop {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-disabled {
-            background: var(--border);
-            color: var(--text-muted);
-            cursor: not-allowed;
-        }
-
-        .btn-manual {
-            background: var(--primary);
-            color: white;
-            width: 50px;
-            flex: 0 0 50px;
-        }
-        
-        .streak-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .variance {
-            font-weight: 600;
-        }
-        
-        .variance.positive { color: var(--warning); }
-        .variance.negative { color: var(--primary); }
-        .variance.zero { color: var(--success); }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-        
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 24px;
-            max-width: 90%;
-            width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        input[type="number"], input[type="time"] {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 16px;
-            margin-top: 8px;
-        }
-        
-        .regret-message {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: 600;
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        .celebration {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2000;
-            pointer-events: none;
-        }
-        
-        .confetti {
-            font-size: 32px;
-            animation: confetti-fall 3s forwards;
-        }
-        
-        @keyframes confetti-fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateX(-50%) translateY(0); opacity: 1; }
-            to { transform: translateX(-50%) translateY(-100px); opacity: 0; }
-        }
-        
-        .export-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-            z-index: 50;
-            transition: transform 0.2s;
-        }
-        
-        .export-btn:active {
-            transform: scale(0.9);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Quick Action Floating Widget -->
+    <div class="quick-action-widget" id="quickWidget">
+        <div class="quick-widget-content">
+            <div class="quick-widget-icon" id="quickIcon">⏰</div>
+            <div class="quick-widget-info">
+                <div class="quick-widget-name" id="quickName">No active activity</div>
+                <div class="quick-widget-timer" id="quickTimer">--:--:--</div>
+            </div>
+            <button class="quick-widget-btn" id="quickBtn" onclick="tracker.quickAction()">Start</button>
+        </div>
+    </div>
+
+    <!-- Main Header -->
     <div class="header">
         <div class="header-top">
-            <h1>Time Budget</h1>
+            <h1>⏰ Time Budget</h1>
             <div class="day-badge" id="dayBadge">Loading...</div>
         </div>
+        
+        <!-- Stats Bar -->
         <div class="stats-bar">
             <div class="stat-mini">
                 <div class="stat-mini-value" id="totalVariance">0m</div>
@@ -460,7 +39,7 @@
             </div>
             <div class="stat-mini">
                 <div class="stat-mini-value" id="totalCalories">0</div>
-                <div class="stat-mini-label">🔥 Calories</div>
+                <div class="stat-mini-label">🔥 Cal</div>
             </div>
             <div class="stat-mini">
                 <div class="stat-mini-value" id="streakCount">0</div>
@@ -468,39 +47,121 @@
             </div>
             <div class="stat-mini">
                 <div class="stat-mini-value" id="completionRate">0%</div>
-                <div class="stat-mini-label">Complete</div>
+                <div class="stat-mini-label">Done</div>
             </div>
         </div>
+
+        <!-- Navigation Tabs -->
         <div class="nav-bar">
-            <button class="nav-btn active" onclick="tracker.showView('track')" id="navTrack">🎯 Track</button>
-            <button class="nav-btn" onclick="tracker.showView('history')" id="navHistory">📜 History</button>
-            <button class="nav-btn" onclick="tracker.openSettings()" style="flex: 0 0 50px;">⚙️</button>
+            <button class="nav-btn active" onclick="tracker.showView('cards')" id="navCards">
+                🎯 Track
+            </button>
+            <button class="nav-btn" onclick="tracker.showView('heatmap')" id="navHeatmap">
+                📊 Heatmap
+            </button>
+            <button class="nav-btn" onclick="tracker.showView('insights')" id="navInsights">
+                💡 Insights
+            </button>
+            <button class="nav-btn" onclick="tracker.showView('settings')" id="navSettings">
+                ⚙️ Settings
+            </button>
         </div>
     </div>
 
-    <div id="trackView">
-        <div class="container" id="container">
-            <div class="empty-state">
-                <div class="empty-state-icon">⏰</div>
-                <div>Loading activities...</div>
+    <!-- Deviation Alerts -->
+    <div class="alerts-container" id="alertsContainer"></div>
+
+    <!-- Swipeable Cards View -->
+    <div id="cardsView" class="view-container">
+        <div class="swipe-indicator">
+            <span class="swipe-arrow">←</span>
+            <span class="swipe-text">Swipe to navigate</span>
+            <span class="swipe-arrow">→</span>
+        </div>
+        <div class="cards-container" id="cardsContainer">
+            <div class="activity-card">
+                <div class="card-loading">Loading activities...</div>
+            </div>
+        </div>
+        <div class="card-dots" id="cardDots"></div>
+    </div>
+
+    <!-- Weekly Heatmap View -->
+    <div id="heatmapView" class="view-container" style="display: none;">
+        <div class="container">
+            <h2 class="view-title">📊 Weekly Heatmap</h2>
+            <div class="heatmap-legend">
+                <span class="legend-item"><span class="legend-color" style="background: var(--success);"></span> Complete</span>
+                <span class="legend-item"><span class="legend-color" style="background: var(--warning);"></span> Partial</span>
+                <span class="legend-item"><span class="legend-color" style="background: var(--danger);"></span> Missed</span>
+                <span class="legend-item"><span class="legend-color" style="background: var(--border);"></span> Not tracked</span>
+            </div>
+            <div id="heatmapGrid" class="heatmap-grid"></div>
+        </div>
+    </div>
+
+    <!-- Insights View -->
+    <div id="insightsView" class="view-container" style="display: none;">
+        <div class="container">
+            <h2 class="view-title">💡 Smart Insights</h2>
+            <div id="insightsList" class="insights-list"></div>
+        </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" class="view-container" style="display: none;">
+        <div class="container">
+            <h2 class="view-title">⚙️ Settings</h2>
+            
+            <!-- Template Days -->
+            <div class="settings-section">
+                <h3 class="section-title">📅 Template Days</h3>
+                <div class="template-buttons">
+                    <button class="template-btn" onclick="tracker.applyTemplate('sick')">🤒 Sick Day</button>
+                    <button class="template-btn" onclick="tracker.applyTemplate('travel')">✈️ Travel Day</button>
+                    <button class="template-btn" onclick="tracker.applyTemplate('holiday')">🎉 Holiday</button>
+                    <button class="template-btn" onclick="tracker.applyTemplate('reset')">🔄 Reset to Default</button>
+                </div>
+            </div>
+
+            <!-- Activity Settings -->
+            <div class="settings-section">
+                <h3 class="section-title">🎯 Activity Settings</h3>
+                <div id="activitySettings" class="activity-settings-list"></div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section">
+                <h3 class="section-title">🔔 Notifications</h3>
+                <div class="notification-settings">
+                    <label class="setting-row">
+                        <span>Enable Notifications</span>
+                        <input type="checkbox" id="notificationsToggle" onchange="tracker.toggleNotifications(this.checked)">
+                    </label>
+                    <label class="setting-row">
+                        <span>Reminder Minutes Before</span>
+                        <input type="number" id="reminderMinutes" value="5" min="0" max="30" onchange="tracker.updateReminderTime(this.value)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Export Data -->
+            <div class="settings-section">
+                <h3 class="section-title">💾 Data Management</h3>
+                <button class="action-btn primary" onclick="tracker.exportWeek()">📥 Export This Week</button>
+                <button class="action-btn danger" onclick="tracker.clearAllData()">🗑️ Clear All Data</button>
             </div>
         </div>
     </div>
 
-    <div id="historyView" style="display: none;">
-        <div class="container">
-            <div class="section-title">Today's Logs</div>
-            <div id="historyList"></div>
-        </div>
-    </div>
-
+    <!-- Modals -->
     <div class="modal" id="confirmModal">
         <div class="modal-content">
             <div class="modal-title">Stop Timer?</div>
-            <p style="color: var(--text-muted); margin: 12px 0;">Save this session?</p>
+            <p class="modal-text">Save this session?</p>
             <div class="modal-buttons">
-                <button class="btn btn-disabled" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-stop" onclick="confirmStop()">Stop & Save</button>
+                <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="tracker.confirmStop()">Stop & Save</button>
             </div>
         </div>
     </div>
@@ -508,11 +169,11 @@
     <div class="modal" id="historyModal">
         <div class="modal-content">
             <div class="modal-title">Add Missed Activity</div>
-            <p style="color: var(--text-muted); margin: 12px 0; font-size: 14px;">This will be recorded as history only and won't count toward your streak.</p>
-            <input type="number" id="historyMinutes" placeholder="Minutes" min="1" />
+            <p class="modal-text">This won't count toward your streak.</p>
+            <input type="number" id="historyMinutes" placeholder="Minutes" min="1" class="modal-input">
             <div class="modal-buttons">
-                <button class="btn btn-disabled" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-start" onclick="saveHistory()">Add History</button>
+                <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tracker.saveHistory()">Add History</button>
             </div>
         </div>
     </div>
@@ -520,37 +181,32 @@
     <div class="modal" id="manualStartModal">
         <div class="modal-content">
             <div class="modal-title">Manual Start Time</div>
-            <p style="color: var(--text-muted); margin: 8px 0;">When did you actually start?</p>
-            <input type="time" id="manualStartTime">
+            <p class="modal-text">When did you actually start?</p>
+            <input type="time" id="manualStartTime" class="modal-input">
             <div class="modal-buttons">
-                <button class="btn btn-disabled" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-start" onclick="tracker.confirmManualStart()">Start Now</button>
+                <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tracker.confirmManualStart()">Start Now</button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="settingsModal">
+    <div class="modal" id="templateConfirmModal">
         <div class="modal-content">
-            <div class="modal-title">Activity Settings</div>
-            <p style="color: var(--text-muted); margin: 8px 0; font-size: 14px;">Adjust your scheduled activity times.</p>
-            <div id="settingsList" style="margin-top: 15px;"></div>
+            <div class="modal-title">Apply Template?</div>
+            <p class="modal-text" id="templateConfirmText"></p>
             <div class="modal-buttons">
-                <button class="btn btn-stop" onclick="closeModal()">Close</button>
+                <button class="btn btn-secondary" onclick="tracker.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tracker.confirmTemplate()">Apply</button>
             </div>
         </div>
     </div>
 
-    <button class="export-btn" onclick="exportWeek()" title="Export Weekly Data">📥</button>
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        💡 <strong>Install App:</strong> Tap Share → Add to Home Screen
+        <button class="install-close" onclick="document.getElementById('installPrompt').style.display='none'">×</button>
+    </div>
 
     <script src="app.js"></script>
-    <script>
-        function exportWeek() {
-            if (tracker) {
-                tracker.exportWeek();
-            }
-        }
-    </script>
 </body>
 </html>
-
-
